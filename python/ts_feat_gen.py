@@ -13,7 +13,7 @@ df = pd.read_csv(
     usecols=['NAME', 'state', 'county', 'INTPTLAT', 'INTPTLON',
              'B11002_003E', 'B11002_012E', 'year'])
 
-#changing k to a placeholder as well as using a python package specific for polynomial features to reduce possibility for errors; also instead of using mod.coef_[0], using coef.flatten reduces possibility for errors
+##changing k to a placeholder as well as using a python package specific for polynomial features to reduce possibility for errors; also instead of using mod.coef_[0], using coef.flatten reduces possibility for errors
 def fit_best_polynomial(X, Y, k):
     X_powers = X.copy()
     poly = PolynomialFeatures(degree=k)
@@ -69,6 +69,7 @@ def get_feats(row, r2_cutoff=0.6):
 
 df_grp = df.groupby(['NAME', 'state', 'county'])
 
+
 ts_fits = []
 names = []
 census_vars = ['B11002_003E', 'B11002_012E']
@@ -76,7 +77,7 @@ census_vars = ['B11002_003E', 'B11002_012E']
 for grp, ind in df_grp.groups.items():
     names.append(grp[0])
     sdf = df.loc[ind, ].copy()
-    is_22 = sdf.year == 2022
+    sdf = sdf.sort_values(by = "year")##be more careful about the arrangement of columns, in case that the years are not chronologically ordered
     best_curves = [np.concatenate([get_best_curve(sdf, cv),
                                    sdf.loc[is_22, cv].to_numpy()]) for cv in census_vars]
     curve_feats = [np.concatenate([get_feats(bc), bc[-1:]]) for bc in best_curves]
